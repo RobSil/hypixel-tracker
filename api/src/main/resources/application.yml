@@ -1,0 +1,14 @@
+hypixel:
+  apiKey: ccb1c37e-0646-4633-8245-e509753c000a
+  apiUrl: https://api.hypixel.net
+
+mojang:
+  apiUrl: https://api.mojang.com
+
+spring:
+  data:
+    mongodb:
+      database: hypixel-tracker
+
+  main:
+    allow-circular-references: true
