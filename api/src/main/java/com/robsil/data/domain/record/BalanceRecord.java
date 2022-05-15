@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -22,9 +23,9 @@ public class BalanceRecord {
     private String id;
 
     @CreatedDate
-    private LocalDate createdDate;
+    private LocalDateTime createdDate;
 
-    private String playerId;
+    private String playerUuid;
 
     private BigDecimal coinsInPurse;
 

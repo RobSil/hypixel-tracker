@@ -10,7 +10,9 @@ public interface ProfileRepository extends MongoRepository<Profile, String> {
 
     List<Profile> findAllByPlayerId(String playerId);
 
-    Optional<Profile> findByHypixelId(String hypixelId);
+    Optional<Profile> findByHpId(String hpId);
+
+    Optional<Profile> findByHpIdAndPlayerUuid(String hpId, String playerUuid);
 
     void deleteAllByPlayerId(String playerId);
 }

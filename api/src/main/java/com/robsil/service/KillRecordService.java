@@ -3,7 +3,6 @@ package com.robsil.service;
 import com.robsil.data.domain.record.KillRecord;
 import com.robsil.data.repo.KillRecordRepository;
 import com.robsil.model.KillRecordInfoDto;
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +28,7 @@ public class KillRecordService {
     }
 
     public KillRecord getLast(String playerId, String profileId) {
-        return killRecordRepository.findFirstByPlayerIdOrderByCreatedDateDesc(playerId, profileId).orElse(null);
+        return killRecordRepository.findFirstByPlayerIdAndProfileIdOrderByCreatedDateDesc(playerId, profileId).orElse(null);
     }
 
     public KillRecord save(KillRecord killRecord) {
@@ -38,8 +37,8 @@ public class KillRecordService {
 
     public KillRecord save(KillRecordInfoDto killRecordInfoDto) {
         return save(KillRecord.builder()
-                            .playerId(killRecordInfoDto.getPlayerId())
-                            .profileId(killRecordInfoDto.getProfileId())
+                            .playerId(killRecordInfoDto.getPlayerUuid())
+                            .profileId(killRecordInfoDto.getHpId())
                             .kills(killRecordInfoDto.getKills())
                             .build());
     }

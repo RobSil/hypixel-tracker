@@ -13,9 +13,9 @@ import java.util.List;
 @NoArgsConstructor
 public class CollectionRecordInfoDto {
 
-    private String playerId;
+    private String playerUuid;
 
-    private String profileId;
+    private String hpId;
 
     private List<Resource> resources;
 }

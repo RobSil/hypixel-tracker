@@ -6,6 +6,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Objects;
 
@@ -21,14 +22,14 @@ public class Profile {
 
     private String id;
 
-    private String hypixelId;
+    private String hpId;
 
     private String playerId;
 
     private String playerUuid;
 
     @CreatedDate
-    private LocalDate createdDate;
+    private LocalDateTime createdDate;
 
     @LastModifiedDate
     private Date lastModifiedDate;
@@ -41,13 +42,15 @@ public class Profile {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
+
         Profile profile = (Profile) o;
-        return getHypixelId().equals(profile.getHypixelId()) && getPlayerId().equals(profile.getPlayerId()) && getTitle().equals(profile.getTitle());
+
+        return getHpId().equals(profile.getHpId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getHypixelId(),
+        return Objects.hash(this.getHpId(),
                             getPlayerId(),
                             getTitle());
     }

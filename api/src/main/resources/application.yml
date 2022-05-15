@@ -1,3 +1,6 @@
+curserver:
+  port: 8080
+
 hypixel:
   apiKey: ccb1c37e-0646-4633-8245-e509753c000a
   apiUrl: https://api.hypixel.net

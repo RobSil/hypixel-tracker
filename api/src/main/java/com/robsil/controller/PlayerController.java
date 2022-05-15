@@ -3,6 +3,7 @@ package com.robsil.controller;
 import com.robsil.data.domain.Player;
 import com.robsil.data.domain.Profile;
 import com.robsil.model.PlayerCreationDto;
+import com.robsil.model.PlayerProfilesDto;
 import com.robsil.model.ShortOverallInformationDto;
 import com.robsil.service.PlayerService;
 import com.robsil.service.ProfileService;
@@ -23,9 +24,24 @@ public class PlayerController {
         return playerService.getAll();
     }
 
+    @GetMapping("/api/v1/players/allWithProfiles")
+    public List<PlayerProfilesDto> getAllWithProfiles() {
+        return playerService.getAllWithProfiles();
+    }
+
+    @GetMapping("/api/v1/players/withProfiles")
+    public PlayerProfilesDto getWithProfiles(@RequestParam String playerId) {
+        return playerService.getWithProfiles(playerId);
+    }
+
     @GetMapping("/api/v1/players/byId")
     public Player getById(@RequestParam String id) {
         return playerService.getById(id);
+    }
+
+    @GetMapping("/api/v1/players/byUuid")
+    public Player getByUuid(@RequestParam String uuid) {
+        return playerService.getByUuid(uuid);
     }
 
     @GetMapping("/api/v1/players/profiles")

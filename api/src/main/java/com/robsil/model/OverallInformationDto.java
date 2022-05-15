@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class OverallInformationDto {
 
-    String playerId;
+    String playerUuid;
 
-    String profileId;
+    String hpId;
 
     private CollectionRecord collectionRecord;
 

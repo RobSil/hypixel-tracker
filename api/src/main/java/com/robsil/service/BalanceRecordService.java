@@ -27,8 +27,8 @@ public class BalanceRecordService {
         }
     }
 
-    public BalanceRecord getLast(String playerId) {
-        return balanceRecordRepository.findFirstByPlayerIdOrderByCreatedDateDesc(playerId).orElse(null);
+    public BalanceRecord getLast(String playerUuid) {
+        return balanceRecordRepository.findFirstByPlayerUuidOrderByCreatedDateDesc(playerUuid).orElse(null);
     }
 
     public BalanceRecord save(BalanceRecord balanceRecord) {
@@ -39,7 +39,7 @@ public class BalanceRecordService {
         return save(BalanceRecord.builder()
                             .coinsInBank(balanceRecordInfoDto.getCoinsInBank())
                             .coinsInPurse(balanceRecordInfoDto.getCoinsInPurse())
-                            .playerId(balanceRecordInfoDto.getPlayerId())
+                            .playerUuid(balanceRecordInfoDto.getPlayerUuid())
                             .build());
     }
 }

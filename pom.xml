@@ -25,6 +25,7 @@
 	</repositories>
 	<modules>
 		<module>api</module>
+        <module>scheduler-service</module>
     </modules>
 	<dependencies>
 		<dependency>

@@ -4,6 +4,7 @@ import com.robsil.data.domain.Player;
 import com.robsil.data.domain.Profile;
 import com.robsil.data.repo.PlayerRepository;
 import com.robsil.model.PlayerCreationDto;
+import com.robsil.model.PlayerProfilesDto;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.json.JSONObject;
@@ -16,6 +17,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -36,6 +38,14 @@ public class PlayerService {
 
     public List<Player> getAll() {
         return playerRepository.findAll();
+    }
+
+    public List<PlayerProfilesDto> getAllWithProfiles() {
+        List<Player> players = getAll();
+
+        return players.stream()
+                .map(player -> new PlayerProfilesDto(player, profileService.getAllByPlayerId(player.getId())))
+                .collect(Collectors.toList());
     }
 
     public Player getById(String id) {
@@ -138,5 +148,17 @@ public class PlayerService {
 
     public void deleteAll() {
         playerRepository.deleteAll();
+    }
+
+    public PlayerProfilesDto getWithProfiles(String playerId) {
+
+        Player player = getById(playerId);
+
+        List<Profile> profiles = profileService.getAllByPlayerId(playerId);
+
+        return PlayerProfilesDto.builder()
+                .player(player)
+                .profiles(profiles)
+                .build();
     }
 }

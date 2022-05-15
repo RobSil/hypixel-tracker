@@ -8,5 +8,5 @@ import java.util.Optional;
 public interface BalanceRecordRepository extends MongoRepository<BalanceRecord, String> {
 
 //    @Query("select x from BalanceRecord x where x.playerId = ?1 order by x.createdDate desc")
-    Optional<BalanceRecord> findFirstByPlayerIdOrderByCreatedDateDesc(String playerId);
+    Optional<BalanceRecord> findFirstByPlayerUuidOrderByCreatedDateDesc(String playerId);
 }

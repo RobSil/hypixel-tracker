@@ -13,9 +13,9 @@ import java.util.List;
 @NoArgsConstructor
 public class KillRecordInfoDto {
 
-    private String playerId;
+    private String playerUuid;
 
-    private String profileId;
+    private String hpId;
 
     private List<Kill> kills;
 }

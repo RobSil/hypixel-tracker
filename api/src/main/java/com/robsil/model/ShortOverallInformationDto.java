@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ShortOverallInformationDto {
 
-    String playerId;
+    String playerUuid;
 
     String profileId;
 

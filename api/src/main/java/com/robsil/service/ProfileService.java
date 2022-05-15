@@ -6,7 +6,6 @@ import com.robsil.data.repo.ProfileRepository;
 import com.robsil.model.*;
 import com.robsil.util.ApiUtil;
 import com.robsil.util.NicknameUtil;
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.json.JSONObject;
@@ -66,8 +65,12 @@ public class ProfileService {
         }
     }
 
-    public Profile getByHypixelId(String hypixelId) {
-        return profileRepository.findByHypixelId(hypixelId).orElse(null);
+    public Profile getByHpId(String hpId) {
+        return profileRepository.findByHpId(hpId).orElse(null);
+    }
+
+    public Profile getByHpIdAndPlayerUuid(String hpId, String playerUuid) {
+        return profileRepository.findByHpIdAndPlayerUuid(hpId, playerUuid).orElse(null);
     }
 
 
@@ -146,7 +149,7 @@ public class ProfileService {
             }
 
             if (profileId != null && title != null) {
-                profiles.add(Profile.builder().hypixelId(profileId).title(title).playerId(playerId).playerUuid(uuid).build());
+                profiles.add(Profile.builder().hpId(profileId).title(title).playerId(playerId).playerUuid(uuid).build());
             }
 
         }
@@ -155,27 +158,28 @@ public class ProfileService {
         return profiles;
     }
 
-    public ShortOverallInformationDto collectInformation(String profileId, String playerId) {
+    public ShortOverallInformationDto collectInformation(String hpId, String playerUuid) {
 
+        String url = hypixelApiUrl + "/skyblock/profile?key=" + hypixelApiKey + "&profile=" + hpId;
 
-        HttpResponse<String> response = apiUtil.sendRequest(URI.create(hypixelApiUrl + "/skyblock/profile?key=" + hypixelApiKey + "&profile=" + profileId));
+        HttpResponse<String> response = apiUtil.sendRequest(URI.create(url));
 
         String body = response.body();
 
         JSONObject bodyJson = new JSONObject(body);
 
-        JSONObject playerProfileInfo = bodyJson.getJSONObject("profile").getJSONObject("members").getJSONObject(nicknameUtil.trimNickname(playerId));
+        JSONObject playerProfileInfo = bodyJson.getJSONObject("profile").getJSONObject("members").getJSONObject(nicknameUtil.trimNickname(playerUuid));
 
-        if (!checkProperties(bodyJson, playerProfileInfo)) {
-            return null;
-        }
+//        if (!checkProperties(bodyJson, playerProfileInfo)) {
+//            return null;
+//        }
 
-        JSONObject statsInfo = playerProfileInfo.getJSONObject("stats");
-        JSONObject dungeonsInfo = playerProfileInfo.getJSONObject("dungeons");
-        JSONObject collectionInfo = playerProfileInfo.getJSONObject("collection");
-        JSONObject bankInfo = bodyJson.getJSONObject("profile").getJSONObject("banking");
+        JSONObject statsInfo = playerProfileInfo.isNull("stats") ? new JSONObject() : playerProfileInfo.getJSONObject("stats");
+        JSONObject dungeonsInfo = playerProfileInfo.isNull("dungeons") ? new JSONObject() : playerProfileInfo.getJSONObject("dungeons");
+        JSONObject collectionInfo = playerProfileInfo.isNull("collection") ? new JSONObject() : playerProfileInfo.getJSONObject("collection");
+        JSONObject bankInfo = bodyJson.getJSONObject("profile").isNull("banking") ? new JSONObject() : bodyJson.getJSONObject("profile").getJSONObject("banking");
 
-        JSONObject playerClassesInfo = dungeonsInfo.getJSONObject("player_classes");
+        JSONObject playerClassesInfo = dungeonsInfo.isNull("player_classes") ? new JSONObject() : dungeonsInfo.getJSONObject("player_classes");
 
         List<ExperienceSkill> experienceSkills = new ArrayList<>();
         List<Kill> killStats = new ArrayList<>();
@@ -243,25 +247,25 @@ public class ProfileService {
         Map<String, Object> statsMap = playerProfileInfo.getJSONObject("stats").toMap();
 
 
-        CollectionRecordInfoDto collectionRecordInfoDto = new CollectionRecordInfoDto(playerId,
-                                                                                      profileId,
+        CollectionRecordInfoDto collectionRecordInfoDto = new CollectionRecordInfoDto(playerUuid,
+                                                                                      hpId,
                                                                                       collectionStats);
-        ExperienceSkillRecordInfoDto experienceSkillRecordInfoDto = new ExperienceSkillRecordInfoDto(playerId,
-                                                                                                     profileId,
+        ExperienceSkillRecordInfoDto experienceSkillRecordInfoDto = new ExperienceSkillRecordInfoDto(playerUuid,
+                                                                                                     hpId,
                                                                                                      experienceSkills);
-        KillRecordInfoDto killRecordInfoDto = new KillRecordInfoDto(playerId,
-                                                                    profileId,
+        KillRecordInfoDto killRecordInfoDto = new KillRecordInfoDto(playerUuid,
+                                                                    hpId,
                                                                     killStats);
-        PlayerClassRecordInfoDto playerClassRecordInfoDto = new PlayerClassRecordInfoDto(playerId,
-                                                                                         profileId,
+        PlayerClassRecordInfoDto playerClassRecordInfoDto = new PlayerClassRecordInfoDto(playerUuid,
+                                                                                         hpId,
                                                                                          playerClassesStats);
-        BalanceRecordInfoDto balanceRecordInfoDto = new BalanceRecordInfoDto(playerId,
+        BalanceRecordInfoDto balanceRecordInfoDto = new BalanceRecordInfoDto(playerUuid,
                                                                              coinsInPurse,
                                                                              bankBalance);
 
         ShortOverallInformationDto shortOverallInformationDto =
-                new ShortOverallInformationDto(playerId,
-                                               profileId,
+                new ShortOverallInformationDto(playerUuid,
+                                               hpId,
                                                collectionRecordInfoDto,
                                                experienceSkillRecordInfoDto,
                                                playerClassRecordInfoDto,

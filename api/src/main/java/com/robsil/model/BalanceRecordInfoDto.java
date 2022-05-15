@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class BalanceRecordInfoDto {
 
-    private String playerId;
+    private String playerUuid;
 
     private BigDecimal coinsInPurse;
 

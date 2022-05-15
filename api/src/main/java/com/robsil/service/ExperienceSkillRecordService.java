@@ -3,7 +3,6 @@ package com.robsil.service;
 import com.robsil.data.domain.record.ExperienceSkillRecord;
 import com.robsil.data.repo.ExperienceSkillRecordRepository;
 import com.robsil.model.ExperienceSkillRecordInfoDto;
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +28,7 @@ public class ExperienceSkillRecordService {
     }
 
     public ExperienceSkillRecord getLast(String playerId, String profileId) {
-        return experienceSkillRecordRepository.findFirstByPlayerIdOrderByCreatedDateDesc(playerId, profileId).orElse(null);
+        return experienceSkillRecordRepository.findFirstByPlayerIdAndProfileIdOrderByCreatedDateDesc(playerId, profileId).orElse(null);
     }
 
     public ExperienceSkillRecord save(ExperienceSkillRecord experienceSkillRecord) {
@@ -38,8 +37,8 @@ public class ExperienceSkillRecordService {
 
     public ExperienceSkillRecord save(ExperienceSkillRecordInfoDto experienceSkillRecordInfoDto) {
         return save(ExperienceSkillRecord.builder()
-                            .playerId(experienceSkillRecordInfoDto.getPlayerId())
-                            .profileId(experienceSkillRecordInfoDto.getProfileId())
+                            .playerId(experienceSkillRecordInfoDto.getPlayerUuid())
+                            .profileId(experienceSkillRecordInfoDto.getHpId())
                             .experienceSkills(experienceSkillRecordInfoDto.getExperienceSkills())
                             .build());
     }
