@@ -3,6 +3,7 @@ package com.robsil.service;
 import com.robsil.data.domain.Profile;
 import com.robsil.data.domain.record.*;
 import com.robsil.model.*;
+import com.robsil.model.exception.NoContentException;
 import com.robsil.util.ExperienceUtil;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -51,9 +52,12 @@ public class RecordService {
             throw new IllegalArgumentException();
         }
         if (date != null) {
-            return getOverallInformation(playerUuid, hpId, date);
+            return getOverallInformation(playerUuid,
+                                         hpId,
+                                         date);
         }
-        return getOverallInformation(playerUuid, hpId);
+        return getOverallInformation(playerUuid,
+                                     hpId);
     }
 
     public OverallInformationDto getOverallInformation(String playerUuid, String hpId) {
@@ -78,6 +82,10 @@ public class RecordService {
         CollectionRecord collectionRecord = collectionRecordService.getLast(playerUuid,
                                                                             hpId);
 
+        if (balanceRecord == null && killRecord == null && experienceSkillRecord == null && playerClassRecord == null && collectionRecord == null) {
+            throw new NoContentException("No content found");
+        }
+
 
         return formatOverallInformationDto(playerUuid,
                                            hpId,
@@ -86,26 +94,26 @@ public class RecordService {
                                            experienceSkillRecord,
                                            playerClassRecord,
                                            collectionRecord);
-//        return OverallInformationDto.builder()
-//                .playerUuid(playerUuid)
-//                .hpId(hpId)
-//                .balanceRecord(balanceRecord)
-//                .experienceSkillRecord(experienceSkillRecord)
-//                .killRecord(killRecord)
-//                .playerClassRecord(playerClassRecord)
-//                .collectionRecord(collectionRecord)
-//                .build();
+        //        return OverallInformationDto.builder()
+        //                .playerUuid(playerUuid)
+        //                .hpId(hpId)
+        //                .balanceRecord(balanceRecord)
+        //                .experienceSkillRecord(experienceSkillRecord)
+        //                .killRecord(killRecord)
+        //                .playerClassRecord(playerClassRecord)
+        //                .collectionRecord(collectionRecord)
+        //                .build();
     }
 
     public OverallInformationDto getOverallInformation(String playerUuid, String hpId, LocalDate date) {
-//        List<TotalRecord> totalRecords = totalRecordService.getAllByHpIdAndBetweenDates(hpId,
-//                                                                                        date.atStartOfDay(),
-//                                                                                        date.atTime(23,
-//                                                                                                    59,
-//                                                                                                    59));
+        //        List<TotalRecord> totalRecords = totalRecordService.getAllByHpIdAndBetweenDates(hpId,
+        //                                                                                        date.atStartOfDay(),
+        //                                                                                        date.atTime(23,
+        //                                                                                                    59,
+        //                                                                                                    59));
         List<TotalRecord> totalRecords = totalRecordService.getAllByHpIdAndBetweenDates(hpId,
-                                                                                        date.minusDays(1),
-                                                                                        date.plusDays(1));
+                                                                                        date.atStartOfDay(),
+                                                                                        date.plusDays(1).atStartOfDay());
 
         TotalRecord totalRecord = totalRecords.stream().findFirst().orElse(null);
 
@@ -116,6 +124,7 @@ public class RecordService {
             PlayerClassRecord playerClassRecord = playerClassRecordService.getById(totalRecord.getPlayerClassRecordId());
             CollectionRecord collectionRecord = collectionRecordService.getById(totalRecord.getCollectionRecordId());
 
+
             return formatOverallInformationDto(playerUuid,
                                                hpId,
                                                balanceRecord,
@@ -123,18 +132,19 @@ public class RecordService {
                                                experienceSkillRecord,
                                                playerClassRecord,
                                                collectionRecord);
-//            return OverallInformationDto.builder()
-//                    .playerUuid(playerUuid)
-//                    .hpId(hpId)
-//                    .balanceRecord(balanceRecord)
-//                    .killRecord(killRecord)
-//                    .experienceSkillRecord(experienceSkillRecord)
-//                    .playerClassRecord(playerClassRecord)
-//                    .collectionRecord(collectionRecord)
-//                    .build();
+            //            return OverallInformationDto.builder()
+            //                    .playerUuid(playerUuid)
+            //                    .hpId(hpId)
+            //                    .balanceRecord(balanceRecord)
+            //                    .killRecord(killRecord)
+            //                    .experienceSkillRecord(experienceSkillRecord)
+            //                    .playerClassRecord(playerClassRecord)
+            //                    .collectionRecord(collectionRecord)
+            //                    .build();
+        } else {
+            throw new NoContentException("No content found");
         }
 
-        return null;
     }
 
     public OverallInformationDto getDifferenceInformation(String playerUuid, String hpId, LocalDate dateFrom, LocalDate dateTo) {
@@ -246,23 +256,23 @@ public class RecordService {
         if (experienceSkillRecord != null) {
             experienceSkillRecord
                     .setExperienceSkills(experienceSkillRecord.getExperienceSkills() != null ?
-                                                              experienceSkillRecord.getExperienceSkills()
-                                                                      .stream()
-                                                                      .map(experienceSkill -> new ExperienceSkillDto(experienceSkill.getSkillName(),
-                                                                                                                     experienceSkill.getSkillEntity(),
-                                                                                                                     experienceSkill.getExp(),
-                                                                                                                     experienceUtil.universalXpToLevel(experienceSkill.getExp().intValue())))
-                                                                      .collect(Collectors.toList()) : null);
+                                                 experienceSkillRecord.getExperienceSkills()
+                                                         .stream()
+                                                         .map(experienceSkill -> new ExperienceSkillDto(experienceSkill.getSkillName(),
+                                                                                                        experienceSkill.getSkillEntity(),
+                                                                                                        experienceSkill.getExp(),
+                                                                                                        experienceUtil.universalXpToLevel(experienceSkill.getExp().intValue())))
+                                                         .collect(Collectors.toList()) : null);
         }
 
         return OverallInformationDto.builder()
-                        .playerUuid(playerUuid)
-                        .hpId(hpId)
-                        .balanceRecord(balanceRecord)
-                        .experienceSkillRecord(experienceSkillRecord)
-                        .killRecord(killRecord)
-                        .playerClassRecord(playerClassRecord)
-                        .collectionRecord(collectionRecord)
-                        .build();
+                .playerUuid(playerUuid)
+                .hpId(hpId)
+                .balanceRecord(balanceRecord)
+                .experienceSkillRecord(experienceSkillRecord)
+                .killRecord(killRecord)
+                .playerClassRecord(playerClassRecord)
+                .collectionRecord(collectionRecord)
+                .build();
     }
 }

@@ -13,5 +13,5 @@ public interface TotalRecordRepository extends MongoRepository<TotalRecord, Stri
 
 //    List<TotalRecord> findAllByHpIdAndCreatedDateBetween(String hpId, LocalDateTime dateFrom, LocalDateTime dateTo);
 
-    List<TotalRecord> findAllByHpIdAndCreatedDateBetween(String hpId, LocalDate dateFrom, LocalDate dateTo);
+    List<TotalRecord> findAllByHpIdAndCreatedDateBetween(String hpId, LocalDateTime dateFrom, LocalDateTime dateTo);
 }

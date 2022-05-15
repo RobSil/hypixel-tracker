@@ -17,6 +17,7 @@ import {
     UncontrolledCollapse
 } from "reactstrap";
 import Navbar from "./Navbar";
+import {toast, ToastContainer} from "react-toastify";
 
 const PlayerEdit = () => {
 
@@ -73,6 +74,9 @@ const PlayerEdit = () => {
             console.log(date.toLocaleDateString())
             apiService.getOverallIInformationByDate(playerWithProfiles.player.uuid, hpId, date.toLocaleDateString().replaceAll(".", "-")).then((req) => {
                 if (req.request.status >= 200 && req.request.status < 300) {
+                    if (req.request.status === 204) {
+                        toast.error("There is no records for with date.")
+                    }
                     if (req.data) {
                         setProfileInfo(req.data)
                         setProfileLoading(true)
@@ -133,6 +137,12 @@ const PlayerEdit = () => {
 
     return (
         <div>
+            <ToastContainer
+            position="top-right"
+            autoClose={2000}
+            closeOnClick={true}
+            pauseOnHover={true}
+            />
             <Navbar />
             <DatePicker selected={date} onChange={(date) => {
                 setDate(date)
@@ -204,6 +214,19 @@ const PlayerEdit = () => {
                                             profileInfo.playerClassRecord.playerClasses.map(playerClass => {
                                                 return <p>class: {playerClass.className}; exp: {playerClass.exp}; level - {playerClass.level};</p>
                                             })
+                                        ) : null}
+                                    </CardBody>
+                                </Card>
+                            </UncontrolledCollapse>
+                            <Button id="balanceToggle" color="primary">Balance</Button>
+                            <UncontrolledCollapse toggler="#balanceToggle">
+                                <Card>
+                                    <CardBody>
+                                        {profileLoading && profileInfo.balanceRecord != null ? (
+                                            <div>
+                                                <p>coins in bank: {profileInfo.balanceRecord.coinsInBank}</p>
+                                                <p>coins in purse: {profileInfo.balanceRecord.coinsInPurse}</p>
+                                            </div>
                                         ) : null}
                                     </CardBody>
                                 </Card>

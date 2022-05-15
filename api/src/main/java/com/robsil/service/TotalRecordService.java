@@ -33,7 +33,7 @@ public class TotalRecordService {
 //    public List<TotalRecord> getAllByHpIdAndBetweenDates(String hpId, LocalDateTime dateFrom, LocalDateTime dateTo) {
 //        return totalRecordRepository.findAllByHpIdAndCreatedDateBetween(hpId, dateFrom, dateTo);
 //    }
-    public List<TotalRecord> getAllByHpIdAndBetweenDates(String hpId, LocalDate dateFrom, LocalDate dateTo) {
+    public List<TotalRecord> getAllByHpIdAndBetweenDates(String hpId, LocalDateTime dateFrom, LocalDateTime dateTo) {
         return totalRecordRepository.findAllByHpIdAndCreatedDateBetween(hpId, dateFrom, dateTo);
     }
 
