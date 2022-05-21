@@ -13,7 +13,7 @@ public class ShortOverallInformationDto {
 
     String playerUuid;
 
-    String profileId;
+    String hpId;
 
     private CollectionRecordInfoDto collectionRecordInfoDto;
 

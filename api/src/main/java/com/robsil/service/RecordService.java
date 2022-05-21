@@ -4,12 +4,15 @@ import com.robsil.data.domain.Profile;
 import com.robsil.data.domain.record.*;
 import com.robsil.model.*;
 import com.robsil.model.exception.NoContentException;
+import com.robsil.model.mapstruct.TotalRecordMapper;
 import com.robsil.util.ExperienceUtil;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,8 +49,10 @@ public class RecordService {
     @Autowired
     private ExperienceUtil experienceUtil;
 
+    private TotalRecordMapper totalRecordMapper;
 
-    public OverallInformationDto handleOverallInformation(String playerUuid, String hpId, LocalDate date) {
+
+    public TotalRecordDto handleOverallInformation(String playerUuid, String hpId, LocalDate date) {
         if ((playerUuid == null || hpId == null) || (playerUuid.isBlank() || hpId.isBlank())) {
             throw new IllegalArgumentException();
         }
@@ -60,7 +65,7 @@ public class RecordService {
                                      hpId);
     }
 
-    public OverallInformationDto getOverallInformation(String playerUuid, String hpId) {
+    public TotalRecordDto getOverallInformation(String playerUuid, String hpId) {
 
         //        Profile profile = profileService.getByHpId(hpId);
         Profile profile = profileService.getByHpIdAndPlayerUuid(hpId,
@@ -69,31 +74,41 @@ public class RecordService {
 
         log.info(profile.getTitle());
 
-        BalanceRecord balanceRecord = balanceRecordService.getLast(playerUuid);
-        ExperienceSkillRecord experienceSkillRecord = experienceSkillRecordService.getLast(playerUuid,
-                                                                                           hpId);
+        TotalRecord totalRecord = totalRecordService.getLastByHpId(hpId);
 
-        KillRecord killRecord = killRecordService.getLast(playerUuid,
-                                                          hpId);
-        PlayerClassRecord playerClassRecord = playerClassRecordService.getLast(playerUuid,
-                                                                               hpId);
-
-
-        CollectionRecord collectionRecord = collectionRecordService.getLast(playerUuid,
-                                                                            hpId);
-
-        if (balanceRecord == null && killRecord == null && experienceSkillRecord == null && playerClassRecord == null && collectionRecord == null) {
-            throw new NoContentException("No content found");
+        if (totalRecord == null) {
+            return null;
         }
 
+        totalRecordMapper = Mappers.getMapper(TotalRecordMapper.class);
 
-        return formatOverallInformationDto(playerUuid,
-                                           hpId,
-                                           balanceRecord,
-                                           killRecord,
-                                           experienceSkillRecord,
-                                           playerClassRecord,
-                                           collectionRecord);
+        return totalRecordMapper.totalRecordToTotalRecordDto(totalRecord);
+
+//        BalanceRecord balanceRecord = balanceRecordService.getLast(playerUuid);
+//        ExperienceSkillRecord experienceSkillRecord = experienceSkillRecordService.getLast(playerUuid,
+//                                                                                           hpId);
+//
+//        KillRecord killRecord = killRecordService.getLast(playerUuid,
+//                                                          hpId);
+//        PlayerClassRecord playerClassRecord = playerClassRecordService.getLast(playerUuid,
+//                                                                               hpId);
+//
+//
+//        CollectionRecord collectionRecord = collectionRecordService.getLast(playerUuid,
+//                                                                            hpId);
+//
+//        if (balanceRecord == null && killRecord == null && experienceSkillRecord == null && playerClassRecord == null && collectionRecord == null) {
+//            throw new NoContentException("No content found");
+//        }
+
+
+//        return formatOverallInformationDto(playerUuid,
+//                                           hpId,
+//                                           balanceRecord,
+//                                           killRecord,
+//                                           experienceSkillRecord,
+//                                           playerClassRecord,
+//                                           collectionRecord);
         //        return OverallInformationDto.builder()
         //                .playerUuid(playerUuid)
         //                .hpId(hpId)
@@ -105,7 +120,7 @@ public class RecordService {
         //                .build();
     }
 
-    public OverallInformationDto getOverallInformation(String playerUuid, String hpId, LocalDate date) {
+    public TotalRecordDto getOverallInformation(String playerUuid, String hpId, LocalDate date) {
         //        List<TotalRecord> totalRecords = totalRecordService.getAllByHpIdAndBetweenDates(hpId,
         //                                                                                        date.atStartOfDay(),
         //                                                                                        date.atTime(23,
@@ -117,33 +132,26 @@ public class RecordService {
 
         TotalRecord totalRecord = totalRecords.stream().findFirst().orElse(null);
 
-        if (totalRecord != null) {
-            BalanceRecord balanceRecord = balanceRecordService.getById(totalRecord.getBalanceRecordId());
-            KillRecord killRecord = killRecordService.getById(totalRecord.getKillRecordId());
-            ExperienceSkillRecord experienceSkillRecord = experienceSkillRecordService.getById(totalRecord.getExperienceSkillRecordId());
-            PlayerClassRecord playerClassRecord = playerClassRecordService.getById(totalRecord.getPlayerClassRecordId());
-            CollectionRecord collectionRecord = collectionRecordService.getById(totalRecord.getCollectionRecordId());
-
-
-            return formatOverallInformationDto(playerUuid,
-                                               hpId,
-                                               balanceRecord,
-                                               killRecord,
-                                               experienceSkillRecord,
-                                               playerClassRecord,
-                                               collectionRecord);
-            //            return OverallInformationDto.builder()
-            //                    .playerUuid(playerUuid)
-            //                    .hpId(hpId)
-            //                    .balanceRecord(balanceRecord)
-            //                    .killRecord(killRecord)
-            //                    .experienceSkillRecord(experienceSkillRecord)
-            //                    .playerClassRecord(playerClassRecord)
-            //                    .collectionRecord(collectionRecord)
-            //                    .build();
-        } else {
+        if (totalRecord == null) {
             throw new NoContentException("No content found");
         }
+
+        return totalRecordMapper.totalRecordToTotalRecordDto(totalRecord);
+
+//        BalanceRecord balanceRecord = balanceRecordService.getById(totalRecord.getBalanceRecordId());
+//        KillRecord killRecord = killRecordService.getById(totalRecord.getKillRecordId());
+//        ExperienceSkillRecord experienceSkillRecord = experienceSkillRecordService.getById(totalRecord.getExperienceSkillRecordId());
+//        PlayerClassRecord playerClassRecord = playerClassRecordService.getById(totalRecord.getPlayerClassRecordId());
+//        CollectionRecord collectionRecord = collectionRecordService.getById(totalRecord.getCollectionRecordId());
+//
+//
+//        return formatOverallInformationDto(playerUuid,
+//                                           hpId,
+//                                           balanceRecord,
+//                                           killRecord,
+//                                           experienceSkillRecord,
+//                                           playerClassRecord,
+//                                           collectionRecord);
 
     }
 
@@ -153,87 +161,108 @@ public class RecordService {
         return null;
     }
 
-    public OverallInformationDto saveOverallInformation(OverallInformationDto overallInformationDto) {
+//    public OverallInformationDto saveOverallInformation(OverallInformationDto overallInformationDto) {
+//
+//        if (overallInformationDto != null) {
+//            BalanceRecord balanceRecord = balanceRecordService.getById(overallInformationDto.getBalanceRecord().getId());
+//            KillRecord killRecord = killRecordService.getById(overallInformationDto.getKillRecord().getId());
+//            ExperienceSkillRecord experienceSkillRecord = experienceSkillRecordService.getById(overallInformationDto.getExperienceSkillRecord().getId());
+//            PlayerClassRecord playerClassRecord = playerClassRecordService.getById(overallInformationDto.getPlayerClassRecord().getId());
+//            CollectionRecord collectionRecord = collectionRecordService.getById(overallInformationDto.getCollectionRecord().getId());
+//
+//            if (balanceRecord != null && killRecord != null && experienceSkillRecord != null && playerClassRecord != null & collectionRecord != null) {
+//
+//                balanceRecord = balanceRecordService.save(balanceRecord);
+//                killRecord = killRecordService.save(killRecord);
+//                experienceSkillRecord = experienceSkillRecordService.save(experienceSkillRecord);
+//                playerClassRecord = playerClassRecordService.save(playerClassRecord);
+//                collectionRecord = collectionRecordService.save(collectionRecord);
+//
+//                //                if (balanceRecord != null && killRecord != null && experienceSkillRecord != null && playerClassRecord != null && collectionRecord != null) {
+//                totalRecordService.save(TotalRecord.builder()
+//                                                .playerUuid(overallInformationDto.getPlayerUuid())
+//                                                .hpId(overallInformationDto.getHpId())
+//                                                //                                                .balanceRecordId(balanceRecord.getId())
+//                                                .collectionRecordId(collectionRecord.getId())
+//                                                .experienceSkillRecordId(experienceSkillRecord.getId())
+//                                                .killRecordId(killRecord.getId())
+//                                                .playerClassRecordId(playerClassRecord.getId())
+//                                                .build());
+//
+//                return OverallInformationDto.builder()
+//                        .playerUuid(overallInformationDto.getPlayerUuid())
+//                        .hpId(overallInformationDto.getHpId())
+//                        .balanceRecord(balanceRecord)
+//                        .killRecord(killRecord)
+//                        .experienceSkillRecord(experienceSkillRecord)
+//                        .playerClassRecord(playerClassRecord)
+//                        .collectionRecord(collectionRecord)
+//                        .build();
+//                //                }
+//            }
+//
+//        }
+//
+//        log.warn("recordService saveOverallInformation: something went wrong");
+//        return null;
+//    }
 
-        if (overallInformationDto != null) {
-            BalanceRecord balanceRecord = balanceRecordService.getById(overallInformationDto.getBalanceRecord().getId());
-            KillRecord killRecord = killRecordService.getById(overallInformationDto.getKillRecord().getId());
-            ExperienceSkillRecord experienceSkillRecord = experienceSkillRecordService.getById(overallInformationDto.getExperienceSkillRecord().getId());
-            PlayerClassRecord playerClassRecord = playerClassRecordService.getById(overallInformationDto.getPlayerClassRecord().getId());
-            CollectionRecord collectionRecord = collectionRecordService.getById(overallInformationDto.getCollectionRecord().getId());
+    public TotalRecord saveOverallInformation(ShortOverallInformationDto dto) {
 
-            if (balanceRecord != null && killRecord != null && experienceSkillRecord != null && playerClassRecord != null & collectionRecord != null) {
-
-                balanceRecord = balanceRecordService.save(balanceRecord);
-                killRecord = killRecordService.save(killRecord);
-                experienceSkillRecord = experienceSkillRecordService.save(experienceSkillRecord);
-                playerClassRecord = playerClassRecordService.save(playerClassRecord);
-                collectionRecord = collectionRecordService.save(collectionRecord);
-
-                //                if (balanceRecord != null && killRecord != null && experienceSkillRecord != null && playerClassRecord != null && collectionRecord != null) {
-                totalRecordService.save(TotalRecord.builder()
-                                                .playerUuid(overallInformationDto.getPlayerUuid())
-                                                .hpId(overallInformationDto.getHpId())
-                                                .balanceRecordId(balanceRecord.getId())
-                                                .collectionRecordId(collectionRecord.getId())
-                                                .experienceSkillRecordId(experienceSkillRecord.getId())
-                                                .killRecordId(killRecord.getId())
-                                                .playerClassRecordId(playerClassRecord.getId())
-                                                .build());
-
-                return OverallInformationDto.builder()
-                        .playerUuid(overallInformationDto.getPlayerUuid())
-                        .hpId(overallInformationDto.getHpId())
-                        .balanceRecord(balanceRecord)
-                        .killRecord(killRecord)
-                        .experienceSkillRecord(experienceSkillRecord)
-                        .playerClassRecord(playerClassRecord)
-                        .collectionRecord(collectionRecord)
-                        .build();
-                //                }
-            }
-
+        if (dto == null) {
+            return null;
         }
 
-        log.warn("recordService saveOverallInformation: something went wrong");
-        return null;
+        TotalRecord totalRecord = TotalRecord.builder()
+                .playerUuid(dto.getPlayerUuid())
+                .hpId(dto.getHpId())
+                .balanceRecord(dto.getBalanceRecordInfoDto())
+                .collectionRecord(dto.getCollectionRecordInfoDto())
+                .killRecord(dto.getKillRecordInfoDto())
+                .experienceSkillRecord(dto.getExperienceSkillRecordInfoDto())
+                .playerClassRecord(dto.getPlayerClassRecordInfoDto())
+                .build();
+
+        totalRecord = totalRecordService.save(totalRecord);
+
+        return totalRecord;
     }
 
-    public OverallInformationDto saveOverallInformation(ShortOverallInformationDto shortOverallInformationDto) {
-
-        if (shortOverallInformationDto != null) {
-            BalanceRecord balanceRecord = balanceRecordService.save(shortOverallInformationDto.getBalanceRecordInfoDto());
-            KillRecord killRecord = killRecordService.save(shortOverallInformationDto.getKillRecordInfoDto());
-            ExperienceSkillRecord experienceSkillRecord = experienceSkillRecordService.save(shortOverallInformationDto.getExperienceSkillRecordInfoDto());
-            PlayerClassRecord playerClassRecord = playerClassRecordService.save(shortOverallInformationDto.getPlayerClassRecordInfoDto());
-            CollectionRecord collectionRecord = collectionRecordService.save(shortOverallInformationDto.getCollectionRecordInfoDto());
-
-            //            if (balanceRecord != null && killRecord != null && experienceSkillRecord != null && playerClassRecord != null && collectionRecord != null) {
-            totalRecordService.save(TotalRecord.builder()
-                                            .playerUuid(shortOverallInformationDto.getPlayerUuid())
-                                            .hpId(shortOverallInformationDto.getProfileId())
-                                            .balanceRecordId(balanceRecord.getId())
-                                            .collectionRecordId(collectionRecord.getId())
-                                            .experienceSkillRecordId(experienceSkillRecord.getId())
-                                            .killRecordId(killRecord.getId())
-                                            .playerClassRecordId(playerClassRecord.getId())
-                                            .build());
-
-            return OverallInformationDto.builder()
-                    .playerUuid(shortOverallInformationDto.getPlayerUuid())
-                    .hpId(shortOverallInformationDto.getProfileId())
-                    .balanceRecord(balanceRecord)
-                    .killRecord(killRecord)
-                    .experienceSkillRecord(experienceSkillRecord)
-                    .playerClassRecord(playerClassRecord)
-                    .collectionRecord(collectionRecord)
-                    .build();
-            //            }
-        }
-
-        log.warn("recordService saveOverallInformation: something went wrong");
-        return null;
-    }
+    //    public OverallInformationDto saveOverallInformation(ShortOverallInformationDto shortOverallInformationDto) {
+    //
+    //        if (shortOverallInformationDto != null) {
+    //            BalanceRecord balanceRecord = balanceRecordService.save(shortOverallInformationDto.getBalanceRecordInfoDto());
+    //            KillRecord killRecord = killRecordService.save(shortOverallInformationDto.getKillRecordInfoDto());
+    //            ExperienceSkillRecord experienceSkillRecord = experienceSkillRecordService.save(shortOverallInformationDto.getExperienceSkillRecordInfoDto());
+    //            PlayerClassRecord playerClassRecord = playerClassRecordService.save(shortOverallInformationDto.getPlayerClassRecordInfoDto());
+    //            CollectionRecord collectionRecord = collectionRecordService.save(shortOverallInformationDto.getCollectionRecordInfoDto());
+    //
+    //            //            if (balanceRecord != null && killRecord != null && experienceSkillRecord != null && playerClassRecord != null && collectionRecord != null) {
+    //            totalRecordService.save(TotalRecord.builder()
+    //                                            .playerUuid(shortOverallInformationDto.getPlayerUuid())
+    //                                            .hpId(shortOverallInformationDto.getProfileId())
+    //                                            .balanceRecordId(balanceRecord.getId())
+    //                                            .collectionRecordId(collectionRecord.getId())
+    //                                            .experienceSkillRecordId(experienceSkillRecord.getId())
+    //                                            .killRecordId(killRecord.getId())
+    //                                            .playerClassRecordId(playerClassRecord.getId())
+    //                                            .build());
+    //
+    //            return OverallInformationDto.builder()
+    //                    .playerUuid(shortOverallInformationDto.getPlayerUuid())
+    //                    .hpId(shortOverallInformationDto.getProfileId())
+    //                    .balanceRecord(balanceRecord)
+    //                    .killRecord(killRecord)
+    //                    .experienceSkillRecord(experienceSkillRecord)
+    //                    .playerClassRecord(playerClassRecord)
+    //                    .collectionRecord(collectionRecord)
+    //                    .build();
+    //            //            }
+    //        }
+    //
+    //        log.warn("recordService saveOverallInformation: something went wrong");
+    //        return null;
+    //    }
 
     public OverallInformationDto formatOverallInformationDto(String playerUuid,
                                                              String hpId,

@@ -37,6 +37,16 @@ public class TotalRecordService {
         return totalRecordRepository.findAllByHpIdAndCreatedDateBetween(hpId, dateFrom, dateTo);
     }
 
+    public TotalRecord getLastByHpId(String hpId) {
+        TotalRecord totalRecord = totalRecordRepository.findFirstByHpIdOrderByCreatedDateDesc(hpId).orElse(null);
+
+        if (totalRecord == null) {
+            log.warn("totalRecordService getLastByHpId: by hpId not found.");
+        }
+
+        return totalRecord;
+    }
+
     public List<TotalRecord> getAllByProfileId(String hpId) {
         return totalRecordRepository.findAllByHpId(hpId);
     }

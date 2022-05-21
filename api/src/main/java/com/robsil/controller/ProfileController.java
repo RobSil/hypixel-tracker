@@ -2,6 +2,7 @@ package com.robsil.controller;
 
 import com.robsil.data.domain.Profile;
 import com.robsil.model.OverallInformationDto;
+import com.robsil.model.TotalRecordDto;
 import com.robsil.service.ProfileService;
 import com.robsil.service.RecordService;
 import lombok.AllArgsConstructor;
@@ -33,9 +34,9 @@ public class ProfileController {
 //    }
 
     @GetMapping("/api/v1/profiles/overallInformation")
-    public OverallInformationDto getOverallInformationByDate(@RequestParam String playerUuid,
-                                                             @RequestParam String hpId,
-                                                             @RequestParam(required = false) @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate date) {
+    public TotalRecordDto getOverallInformationByDate(@RequestParam String playerUuid,
+                                                      @RequestParam String hpId,
+                                                      @RequestParam(required = false) @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate date) {
         return recordService.handleOverallInformation(playerUuid, hpId, date);
     }
 }
