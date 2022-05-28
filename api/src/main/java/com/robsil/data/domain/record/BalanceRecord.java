@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "BalanceRecord")
+@Deprecated
 public class BalanceRecord {
 
     @Id

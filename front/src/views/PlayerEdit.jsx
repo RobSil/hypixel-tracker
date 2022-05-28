@@ -25,9 +25,12 @@ const PlayerEdit = () => {
     const [loading, setLoading] = useState(false)
     const [profileLoading, setProfileLoading] = useState(false)
     const [toggleModal, setToggleModal] = useState(false)
+    const [toggleDifferenceModal, setDifferenceModal] = useState(false)
     const [profileInfo, setProfileInfo] = useState(null)
     const [isDateSet, setIsDateSet] = useState(false)
     const [date, setDate] = useState(new Date())
+    const [dateFrom, setDateFrom] = useState(new Date())
+    const [dateTo, setDateTo] = useState(new Date())
     const playerId = useParams().playerId
 
     const profileColumns = [
@@ -47,7 +50,9 @@ const PlayerEdit = () => {
             button: true,
             cell: (row) => {
                 return (
-                    <Button color="primary" onClick={() => { handleCurrentProfileModalTrigger(row.hpId) }}>Current Info</Button>
+                    <Button color="primary" onClick={() => {
+                        handleCurrentProfileModalTrigger(row.hpId)
+                    }}>Current Info</Button>
                 )
             }
         },
@@ -55,7 +60,9 @@ const PlayerEdit = () => {
             button: true,
             cell: (row) => {
                 return (
-                    <Button color="primary" onClick={() => { handleProfileByDateModalTrigger(row.hpId) }}>Info by Date</Button>
+                    <Button color="primary" onClick={() => {
+                        handleProfileByDateModalTrigger(row.hpId)
+                    }}>Info by Date</Button>
                 )
             }
         },
@@ -63,7 +70,7 @@ const PlayerEdit = () => {
             button: true,
             cell: (row) => {
                 return (
-                    <Button color="primary" onClick={() => {  }}>Difference</Button>
+                    <Button color="primary" onClick={switchDifferenceModal}>Difference</Button>
                 )
             }
         }
@@ -115,6 +122,10 @@ const PlayerEdit = () => {
         setToggleModal(!toggleModal)
     }
 
+    const switchDifferenceModal = () => {
+        setDifferenceModal(!toggleDifferenceModal)
+    }
+
     useEffect(() => {
 
         fetchPlayers()
@@ -134,28 +145,32 @@ const PlayerEdit = () => {
     }
 
 
-
     return (
         <div>
             <ToastContainer
-            position="top-right"
-            autoClose={2000}
-            closeOnClick={true}
-            pauseOnHover={true}
+                position="top-right"
+                autoClose={2000}
+                closeOnClick={true}
+                pauseOnHover={true}
             />
-            <Navbar />
+            <Navbar/>
             <DatePicker selected={date} onChange={(date) => {
                 setDate(date)
                 setIsDateSet(true)
             }}
-                locale="ua"
-                dateFormat="dd-MM-yyyy"
+                        locale="ua"
+                        dateFormat="dd-MM-yyyy"
             />
             {loading ? (
                 <div>
-                    <p>Id: {playerWithProfiles.player.id}</p>
-                    <p>Nickname: {playerWithProfiles.player.nickname}</p>
-                    <p>Uuid: {playerWithProfiles.player.uuid}</p>
+                    <div className="player__information">
+                        <p>Id: {playerWithProfiles.player.id}</p>
+                        <p>Nickname: {playerWithProfiles.player.nickname}</p>
+                        <p>Uuid: {playerWithProfiles.player.uuid}</p>
+                        {/*<Button color="primary">Delete player</Button>*/}
+                        {/*<Button color="primary">Delete player and profile information</Button>*/}
+                        <Button color="primary">Update profiles</Button>
+                    </div>
                     <DataTable
                         columns={profileColumns}
                         data={playerWithProfiles.profiles}
@@ -163,6 +178,7 @@ const PlayerEdit = () => {
                     <Modal isOpen={toggleModal} toggle={switchToggleModal}>
                         <ModalHeader>Last Saved Profile Information</ModalHeader>
                         <ModalBody>
+                            <p>{profileLoading && profileInfo != null ? profileInfo.createdDate : null}</p>
                             <Button id="collectionToggle" color="primary">Collections</Button>
                             <UncontrolledCollapse toggler="#collectionToggle">
                                 <Card>
@@ -182,9 +198,10 @@ const PlayerEdit = () => {
                             <UncontrolledCollapse toggler="#experienceSkillToggle">
                                 <Card>
                                     <CardBody>
-                                        {profileLoading && profileInfo.experienceSkillRecord != null? (
+                                        {profileLoading && profileInfo.experienceSkillRecord != null ? (
                                             profileInfo.experienceSkillRecord.experienceSkills.map(skill => {
-                                                return <p>name: {skill.skillEntity}; exp: {skill.exp}; level: {skill.level};</p>
+                                                return <p>name: {skill.skillEntity}; exp: {skill.exp};
+                                                    level: {skill.level};</p>
                                             })
                                         ) : null}
                                         <br/>
@@ -212,7 +229,8 @@ const PlayerEdit = () => {
                                     <CardBody>
                                         {profileLoading && profileInfo.playerClassRecord != null ? (
                                             profileInfo.playerClassRecord.playerClasses.map(playerClass => {
-                                                return <p>class: {playerClass.className}; exp: {playerClass.exp}; level - {playerClass.level};</p>
+                                                return <p>class: {playerClass.className}; exp: {playerClass.exp}; level
+                                                    - {playerClass.level};</p>
                                             })
                                         ) : null}
                                     </CardBody>
@@ -233,7 +251,23 @@ const PlayerEdit = () => {
                             </UncontrolledCollapse>
                         </ModalBody>
                         <ModalFooter>
-                            <Button color="danger" onClick={switchToggleModal}>
+                            <Button color="danger" onClick={(e) => {
+                                switchToggleModal()
+                                setProfileInfo(null)
+                            }}>
+                                Close
+                            </Button>
+                        </ModalFooter>
+                    </Modal>
+
+                    <Modal isOpen={toggleDifferenceModal} toggle={switchDifferenceModal}>
+                        <ModalHeader>Header</ModalHeader>
+                        <ModalBody>
+                            <h1>Body</h1>
+                            {/*{dateFrom != null && dateTo != null ? }*/}
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button color="danger" onClick={switchDifferenceModal}>
                                 Close
                             </Button>
                         </ModalFooter>

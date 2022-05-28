@@ -18,6 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "ExperienceSkillRecord")
+@Deprecated
 public class ExperienceSkillRecord {
 
     @Id

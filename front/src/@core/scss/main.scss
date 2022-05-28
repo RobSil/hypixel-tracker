@@ -6,3 +6,11 @@
 .collection-container {
   columns: 2;
 }
+
+.player__information {
+  display: flex;
+  flex-direction: column;
+  Button {
+    max-width: 15%;
+  }
+}

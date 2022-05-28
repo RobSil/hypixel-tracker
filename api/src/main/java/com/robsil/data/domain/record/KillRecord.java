@@ -18,6 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "KillRecord")
+@Deprecated
 public class KillRecord {
 
     @Id

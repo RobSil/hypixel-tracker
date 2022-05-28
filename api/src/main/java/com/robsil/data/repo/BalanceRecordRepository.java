@@ -3,7 +3,9 @@ package com.robsil.data.repo;
 import com.robsil.data.domain.record.BalanceRecord;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 public interface BalanceRecordRepository extends MongoRepository<BalanceRecord, String> {
 

@@ -18,6 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "PlayerClassesRecord")
+@Deprecated
 public class PlayerClassRecord {
 
     @Id
