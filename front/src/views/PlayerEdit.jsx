@@ -31,6 +31,8 @@ const PlayerEdit = () => {
     const [date, setDate] = useState(new Date())
     const [dateFrom, setDateFrom] = useState(new Date())
     const [dateTo, setDateTo] = useState(new Date())
+    const [showDifferenceDatePicker, setShowDifferenceDatePicker] = useState(true)
+    const [differenceHpId, setDifferenceHpId] = useState(null)
     const playerId = useParams().playerId
 
     const profileColumns = [
@@ -70,7 +72,10 @@ const PlayerEdit = () => {
             button: true,
             cell: (row) => {
                 return (
-                    <Button color="primary" onClick={switchDifferenceModal}>Difference</Button>
+                    <Button color="primary" onClick={(e) => {
+                        setDifferenceHpId(row.hpId)
+                        switchDifferenceModal()
+                    }}>Difference</Button>
                 )
             }
         }
@@ -144,6 +149,12 @@ const PlayerEdit = () => {
         })
     }
 
+    const getDifference = () => [
+        apiService.getDifference(playerId, differenceHpId, dateFrom.toLocaleDateString().replaceAll(".", "-"), dateTo.toLocaleDateString().replaceAll(".", "-"))
+            .then((req) => {
+                console.log(req.data)
+            })
+    ]
 
     return (
         <div>
@@ -262,15 +273,57 @@ const PlayerEdit = () => {
 
                     <Modal isOpen={toggleDifferenceModal} toggle={switchDifferenceModal}>
                         <ModalHeader>Header</ModalHeader>
-                        <ModalBody>
-                            <h1>Body</h1>
-                            {/*{dateFrom != null && dateTo != null ? }*/}
-                        </ModalBody>
-                        <ModalFooter>
-                            <Button color="danger" onClick={switchDifferenceModal}>
-                                Close
-                            </Button>
-                        </ModalFooter>
+                        {showDifferenceDatePicker ? (
+                            <div>
+                                <ModalBody>
+                                    <h1>DatePick</h1>
+                                    <div>
+                                        <p>Select date from:</p>
+                                        <DatePicker selected={dateFrom} onChange={(date) => {
+                                            setDateFrom(date)
+                                        }}
+                                                    locale="ua"
+                                                    dateFormat="dd-MM-yyyy"
+                                        />
+                                    </div>
+                                    <div>
+                                        <p>Select date to:</p>
+                                        <DatePicker selected={dateTo} onChange={(date) => {
+                                            setDateTo(date)
+                                        }}
+                                                    locale="ua"
+                                                    dateFormat="dd-MM-yyyy"
+                                        />
+                                    </div>
+                                </ModalBody>
+                                <ModalFooter>
+                                    <Button color="info" onClick={(e) => {
+                                        getDifference()
+                                        setShowDifferenceDatePicker(false)
+                                    }}>
+                                        Get difference
+                                    </Button>
+                                    <Button color="danger" onClick={switchDifferenceModal}>
+                                        Close
+                                    </Button>
+                                </ModalFooter>
+                            </div>
+                        ) : (
+                            <div>
+                                <ModalBody>
+                                    <h1>Player info</h1>
+                                </ModalBody>
+                                <ModalFooter>
+                                    <Button color="warn" onClick={(e) => setShowDifferenceDatePicker(true)}>
+                                        Back to date pick
+                                    </Button>
+                                    <Button color="danger" onClick={switchDifferenceModal}>
+                                        Close
+                                    </Button>
+                                </ModalFooter>
+                            </div>
+                        )}
+
                     </Modal>
 
                 </div>

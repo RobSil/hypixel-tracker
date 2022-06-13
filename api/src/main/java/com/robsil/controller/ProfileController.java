@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -38,5 +39,13 @@ public class ProfileController {
                                                       @RequestParam String hpId,
                                                       @RequestParam(required = false) @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate date) {
         return recordService.handleOverallInformation(playerUuid, hpId, date);
+    }
+
+    @GetMapping("/api/v1/profiles/difference")
+    public TotalRecordDto getOverallDifference(@RequestParam String playerUuid,
+                                               @RequestParam String hpId,
+                                               @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate dateFrom,
+                                               @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate dateTo) {
+        return recordService.handleOverallDifference(playerUuid, hpId, dateFrom, dateTo);
     }
 }

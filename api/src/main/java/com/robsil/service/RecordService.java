@@ -4,6 +4,7 @@ import com.robsil.data.domain.Profile;
 import com.robsil.data.domain.record.*;
 import com.robsil.model.*;
 import com.robsil.model.exception.NoContentException;
+import com.robsil.model.exception.TotalRecordNotFound;
 import com.robsil.model.mapstruct.TotalRecordMapper;
 import com.robsil.util.ExperienceUtil;
 import lombok.NoArgsConstructor;
@@ -95,10 +96,33 @@ public class RecordService {
 
     }
 
-    public OverallInformationDto getDifferenceInformation(String playerUuid, String hpId, LocalDate dateFrom, LocalDate dateTo) {
+    public TotalRecordDto handleOverallDifference(String playerUuid, String hpId, LocalDate dateFrom, LocalDate dateTo) {
+        List<TotalRecord> totalRecordsFrom = totalRecordService.getAllByHpIdAndBetweenDates(hpId,
+                                                                                            dateFrom.atStartOfDay(),
+                                                                                            dateFrom.plusDays(1).atStartOfDay());
 
+        List<TotalRecord> totalRecordsTo = totalRecordService.getAllByHpIdAndBetweenDates(hpId,
+                                                                                            dateTo.atStartOfDay(),
+                                                                                          dateTo.plusDays(1).atStartOfDay());
 
-        return null;
+        TotalRecord totalRecordFrom = totalRecordsFrom.stream().findFirst().orElse(null);
+        TotalRecord totalRecordTo = totalRecordsTo.stream().findFirst().orElse(null);
+
+        if (totalRecordFrom == null) {
+            throw new TotalRecordNotFound("Can't find any totalRecord -> FROM. LocalDate: " + dateFrom.toString());
+        }
+        if (totalRecordTo == null) {
+            throw new TotalRecordNotFound("Can't find any totalRecord -> TO. LocalDate: " + dateTo.toString());
+        }
+
+//        ExperienceSkillRecordInfoDto experienceSkillTo = totalRecordTo.getExperienceSkillRecord();
+//        ExperienceSkillRecordInfoDto experienceSkillFrom = totalRecordFrom.getExperienceSkillRecord();
+//        experienceSkillTo.setExperienceSkills(experienceSkillTo.getExperienceSkills().forEach(experienceSkill -> new ExperienceSkill(experienceSkill.getSkillName(),
+//                                                                                                                                     experienceSkill.getSkillEntity(),
+//                                                                                                                                     experienceSkill.)););
+//        totalRecordTo.setExperienceSkillRecord(total);
+
+        return new TotalRecordDto();
     }
 
     public TotalRecord saveOverallInformation(ShortOverallInformationDto dto) {
@@ -122,44 +146,4 @@ public class RecordService {
         return totalRecord;
     }
 
-    public OverallInformationDto formatOverallInformationDto(String playerUuid,
-                                                             String hpId,
-                                                             BalanceRecord balanceRecord,
-                                                             KillRecord killRecord,
-                                                             ExperienceSkillRecord experienceSkillRecord,
-                                                             PlayerClassRecord playerClassRecord,
-                                                             CollectionRecord collectionRecord) {
-
-
-        if (playerClassRecord != null) {
-            playerClassRecord.setPlayerClasses(playerClassRecord.getPlayerClasses()
-                                                       .stream()
-                                                       .map(playerClass -> new PlayerClassDto(playerClass.getClassName(),
-                                                                                              playerClass.getExp(),
-                                                                                              experienceUtil.dungeoneeringXpToLevel(playerClass.getExp().intValue())))
-                                                       .collect(Collectors.toList()));
-        }
-
-        if (experienceSkillRecord != null) {
-            experienceSkillRecord
-                    .setExperienceSkills(experienceSkillRecord.getExperienceSkills() != null ?
-                                                 experienceSkillRecord.getExperienceSkills()
-                                                         .stream()
-                                                         .map(experienceSkill -> new ExperienceSkillDto(experienceSkill.getSkillName(),
-                                                                                                        experienceSkill.getSkillEntity(),
-                                                                                                        experienceSkill.getExp(),
-                                                                                                        experienceUtil.universalXpToLevel(experienceSkill.getExp().intValue())))
-                                                         .collect(Collectors.toList()) : null);
-        }
-
-        return OverallInformationDto.builder()
-                .playerUuid(playerUuid)
-                .hpId(hpId)
-                .balanceRecord(balanceRecord)
-                .experienceSkillRecord(experienceSkillRecord)
-                .killRecord(killRecord)
-                .playerClassRecord(playerClassRecord)
-                .collectionRecord(collectionRecord)
-                .build();
-    }
 }
